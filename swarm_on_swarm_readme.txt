@@ -27,3 +27,10 @@ TODO Myself:
 *) finish refactoring controller_pid_velocity
 
 
+================================
+Yifan's notes (Refactoring) 04/25/2019
+
+*) I created a new py file that defines the general helper functions, so things like rotation_maxtrix, wrap_angle do not repeat anymore.
+*) I removed comments that's already finished refactoring, leaving important comments such as params and Controller_PID_Velocity unchanged.
+*) Refactored Controller_PID_Point2Point.
+================================
