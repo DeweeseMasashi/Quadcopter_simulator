@@ -44,6 +44,7 @@ class Propeller():
 
 # This manages the meta data for a list of quadcopters
 class QuadManager():
+
     def __init__(self, quad_list):
         self.quad_list = quad_list
         self.thread_object = None
@@ -76,9 +77,42 @@ class QuadManager():
 
 
 class Quadcopter():
+
+    """ The Quadcopter class
+
+        From Quadcopter Dynamics, Simulation, and Control by Andrew Gibiansky
+
+        Instance Attributes
+        -------------------
+        self.ode : 
+        self.position : (list of length) x, y, z
+        self.orientation : (list of angle) theta, phi, gamma
+        self.L : (length) length of the arm
+        self.r : (length) radius of a sphere representing the center blob of the quadcopter
+        self.prop_size : (list of 2 elements) [propeller_diameter, propeller_pitch]
+        self.weight : weight of the quadcopter
+        self.gravity : gravity on the planet
+        self.b : 
+        self.state : state space representation: [x y z x_dot y_dot z_dot theta phi gamma theta_dot phi_dot gamma_dot]
+        self.m* : individual propellers that the quadcopter has
+        self.I : the moment of inertia matrix
+        self.invI : the inverse of self.I
+
+        Methods
+        -------
+        __init__ : Constructor
+        update : update the state of the quadcopter 
+        set_motor_speeds : takes in a list of speeds and assign it to each self.m* respectively
+        state_dot : take the derivative of the state vector
+        get_position : get [x, y, z]
+        get_linear_rate : get [x_dot, y_dot, z_dot]
+        get_orientation : get [theta, phi, gamma]
+        get_angular_rate : get [theta_dot, phi_dot, gamma_dot]
+        get_state : get self.state
+        set_position : set the position of the quadcopter
+        set_orientation : set the orientation of the quadcopter
+    """
     
-    # State space representation: [x y z x_dot y_dot z_dot theta phi gamma theta_dot phi_dot gamma_dot]
-    # From Quadcopter Dynamics, Simulation, and Control by Andrew Gibiansky
     def __init__(self,position, orientation, L, r, prop_size, weight, gravity=9.81,b=0.0245):
     #def __init__(self,quads,gravity=9.81,b=0.0245):
         #self.quads = quads
@@ -109,19 +143,23 @@ class Quadcopter():
 
 
     def update(self, dt):
-        '''
+        """ The update to the state is performed by an ODE solver from the current state to a new state over a period of dt time(defined by user). 
+        
+        It uses the vode ODE solver available from the SciPy library. 
+        It has an update method to update the state, which is run on a thread at intervals defined by the time scaling factor. 
+        The thread can be started by the start_thread method.
+
         NOTE: This is code from before refactor. Notice how set_f_params takes in a key.
         What was going on was it initialized one self.ode for every quadcopter and
         just used set_f_params with a key input. I wonder if this is faster than
         what we have now...
-
 
         for key in self.quads:
             self.ode.set_initial_value(self.quads[key]['state'],0).set_f_params(key)
             self.quads[key]['state'] = self.ode.integrate(self.ode.t + dt)
             self.quads[key]['state'][6:9] = self.wrap_angle(self.quads[key]['state'][6:9])
             self.quads[key]['state'][2] = max(0,self.quads[key]['state'][2])
-        '''
+        """
         self.ode.set_initial_value(self.state,0).set_f_params()
         self.state = self.ode.integrate(self.ode.t + dt)
         self.state[6:9] = helper.wrap_angle(self.state[6:9])
