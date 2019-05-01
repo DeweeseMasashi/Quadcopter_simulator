@@ -7,7 +7,24 @@ import threading
 import helper
 
 class Propeller():
+    """ This class mainly calculates the behavior(thrust) of a Propeller
+
+        Instance Attributes
+        -------------------
+        self.dia  : (inches) propeller diameter
+        self.pitch : (inches) propeller pitch
+        self.thrust_unit : (string) the unit that we want for the resulting thrust calculated
+        self.speed : (rotations/min) how fast is the propeller spinning
+        self.thrust: (in thrust_unit) the result we would like to present
+
+        Methods
+        -------
+            __init__  : Constructor
+            set_speed : Calculate the thrust
+    """
+
     def __init__(self, prop_dia, prop_pitch, thrust_unit='N'):
+
         self.dia = prop_dia
         self.pitch = prop_pitch
         self.thrust_unit = thrust_unit
@@ -15,8 +32,11 @@ class Propeller():
         self.thrust = 0
 
     def set_speed(self,speed):
+        """ The main calculation for thrust
+
+            From http://www.electricrcaircraftguy.com/2013/09/propeller-static-dynamic-thrust-equation.html
+        """
         self.speed = speed
-        # From http://www.electricrcaircraftguy.com/2013/09/propeller-static-dynamic-thrust-equation.html
         self.thrust = 4.392e-8 * self.speed * math.pow(self.dia,3.5)/(math.sqrt(self.pitch))
         self.thrust = self.thrust*(4.23e-4 * self.speed * self.pitch)
         if self.thrust_unit == 'Kg':
