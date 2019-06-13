@@ -75,6 +75,35 @@ class QuadManager():
     def get_time(self):
         return self.time
 
+# This manages the meta data for a list of quadcopters
+class QuadManagerTimeOnly():
+
+    def __init__(self):
+        self.thread_object = None
+        self.time = datetime.datetime.now()
+        self.run = True
+
+
+    def thread_run(self,dt,time_scaling):
+        rate = time_scaling*dt
+        last_update = self.time
+        while(self.run==True):
+            time.sleep(0)
+            self.time = datetime.datetime.now()
+            if (self.time-last_update).total_seconds() > rate:
+                #self.update(dt)
+                last_update = self.time
+
+
+    def start_thread(self,dt=0.002,time_scaling=1):
+        self.thread_object = threading.Thread(target=self.thread_run,args=(dt,time_scaling))
+        self.thread_object.start()
+
+    def stop_thread(self):
+        self.run = False
+
+    def get_time(self):
+        return self.time
 
 class Quadcopter():
 
@@ -210,6 +239,32 @@ class Quadcopter():
 
     def get_state(self):
         return self.state
+
+    def set_state(self, position, orientation, L, r, prop_size, weight, gravity=9.81,b=0.0245):
+        self.ode =  scipy.integrate.ode(self.state_dot).set_integrator('vode',nsteps=500,method='bdf')
+        self.position = position
+        self.orientation = orientation
+        self.L = L
+        self.r = r
+        self.prop_size = prop_size
+        self.weight = weight
+        self.g = gravity
+        self.b = b
+
+        self.state = np.zeros(12)
+        self.state[0:3] = self.position
+        self.state[6:9] = self.orientation
+        self.m1 = Propeller(self.prop_size[0],self.prop_size[1])
+        self.m2 = Propeller(self.prop_size[0],self.prop_size[1])
+        self.m3 = Propeller(self.prop_size[0],self.prop_size[1])
+        self.m4 = Propeller(self.prop_size[0],self.prop_size[1])
+        # From Quadrotor Dynamics and Control by Randal Beard
+        ixx=((2*self.weight*r**2)/5)+(2*self.weight*L**2)
+        iyy=ixx
+        izz=((2*self.weight*r**2)/5)+(4*self.weight*L**2)
+        self.I = np.array([[ixx,0,0],[0,iyy,0],[0,0,izz]])
+        self.invI = np.linalg.inv(self.I)
+
 
     def set_position(self, position):
         self.state[0:3] = position

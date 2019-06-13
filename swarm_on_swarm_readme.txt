@@ -26,11 +26,23 @@ TODO Others:
 TODO Myself:
 *) finish refactoring controller_pid_velocity
 
-
 ================================
 Yifan's notes (Refactoring) 04/25/2019
+================================
 
 *) I created a new py file that defines the general helper functions, so things like rotation_maxtrix, wrap_angle do not repeat anymore.
 *) I removed comments that's already finished refactoring, leaving important comments such as params and Controller_PID_Velocity unchanged.
 *) Refactored Controller_PID_Point2Point.
+
 ================================
+Alex's notes (DQN)
+================================
+*) To start off run:
+    python quad_sim.py --sim nn_angle_test_2d
+*) If you have keras and other python libraries installed it should work and
+    you should see a drone jittering near the center
+*) To change architecture, as of now, controller.py must be modified
+*) hyper parameters can be changed from quad_sim.py
+*) To experiment with training, go to quad_sim.py under the 2D Demo and uncomment the code 
+    that initializes the controller. This will begin a new training session starting
+    from scratch. BE SURE TO CHANGE THE FILE NAME OR IT WILL OVER RIDE THE INCLUDED DEMO
